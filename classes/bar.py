@@ -5,7 +5,7 @@ class Bar:
         self.open=open
         self.high=high
         self.low=low
-        self.close=close
+        self.close=close 
 
     def __str__(self) -> str:
         return "date:" + self.date + "\n"\
