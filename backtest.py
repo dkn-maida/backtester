@@ -1,3 +1,4 @@
+from classes.gapandgo import Gapandgo
 import statistics
 import sys
 import pandas as pd
@@ -52,10 +53,27 @@ def main():
             global_winsr = global_winsr + g.winsr
             global_lossesr = global_lossesr + g.lossesr
 
+    def gapandgo():
+        global global_res, global_lossesr, global_winsr
+        for stk in sys.argv[2:]:
+            bars=pd.read_csv('data/daily/'+ stk +'.csv')
+            gg=Gapandgo(bars, stk)
+            gg.backtest()
+            # print("{} trades taken on total, {} wins, {} losses {:.2f}% winrate".format(g.taken, g.wins, g.losses, g.winrate))
+            # print("average result is {:.2f} payoff is {:.2f}".format(g.averageres, g.payoff))
+            # df=pd.DataFrame(g.res)
+            # plt.hist(df, bins=[-3,-2.75,-2.5,-2.25,-2,-1.75,-1.5,-1.25,-1,-0.75,-0.5,-0.25,0.25,0.5,0.75,1,1.25,1.5,1.75,2,2.25,2.5,2.75,3])
+            # plt.show()
+            global_res = global_res + gg.res
+            global_winsr = global_winsr + gg.winsr
+            global_lossesr = global_lossesr + gg.lossesr
+
     if(sys.argv[1] == 'gap'):
         gap()
     if(sys.argv[1] == 'reversion'):
         reversion()
+    if(sys.argv[1] == 'gapandgo'):
+        gapandgo()
 
     global_wins=len(global_winsr)
     global_losses=len(global_lossesr)
