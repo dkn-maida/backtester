@@ -49,18 +49,17 @@ class Gapsetup:
                 self.payoff=self.avgw/self.avgl
        
     def isGapHaussier(self, o, pc) -> bool:
-        return o < pc and o >= pc * 0.99
+        return o < pc and o >= pc * 0.99 and o <= pc * 0.997
  
     def isGapBaissier(self, o, pc) -> bool:
-        return o > pc and o <= pc * 1.01
+        return o > pc and o <= pc * 1.01 and o >= pc * 1.003
 
     def inPreviousRange(self, o, ph, pl) -> bool:
         return o <= ph and o >= pl
 
     def entryConditions(self,o,pc,ph,pl)->bool:
         basic=(self.isGapHaussier(o, pc) or self.isGapBaissier(o, pc) and self.inPreviousRange(o, ph, pl))
-        money=abs(o-pc)/o * 100 >= 0.2
-        return basic and money
+        return basic
                     
 
     def isFilled(self, o, pc, h, l)->bool:
@@ -84,27 +83,33 @@ class Gapsetup:
             gapsize=abs(first.open-target)/first.open *100
             print('open is {} target is {} gapsize is {}'.format(first.open, target, gapsize))
         
-            #gap baissier
             if(first.open > target):
+                # target=min(target, first.open * 0.995)
+                stop=first.open * 1.015
                 print('This is a gap Up')
-                while(i < 75 and bars.loc[i].low > target):
+                while(i < 18 and bars.loc[i].low > target):
                     i+=1
-                if( bars.loc[i].low <= target):
+                if( bars.loc[i].high >= stop):
+                    res=first.open-stop
+                elif( bars.loc[i].low <= target):
                     res=first.open-target
                 else:
                     res=first.open - bars.loc[i].close
 
-            #gap haussier
             elif(first.open < target):
+                # target=min(target, first.open * 1.005)
+                stop=first.open * 0.985
                 print('This is a gap Down')
-                while(i < 75 and first.high < target):
+                while(i < 18 and bars.loc[i] < target):
                     i+=1
-                if( bars.loc[i].high >= target ):
+                if( bars.loc[i].low <= stop):
+                    res=stop-first.open
+                elif( bars.loc[i].high >= target ):
                     res=target - first.open
                 else:
                     res=bars.loc[i].close - first.open 
 
-            print('res is {}'.format(res/first.open * 100))
+            print('res is {}'.format(res/first.open * 100)) 
             return res
 
         except:

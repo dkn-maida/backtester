@@ -14,13 +14,16 @@ class ReversionSetup:
         self.winsr=[]
         self.lossesr=[]
         self.res=[]
-        self.averageres=0.0 
+        self.duration=[]
+        self.averageres=0.0
+        self.avgduration=0.0
         self.avgw=0.0
         self.avgl=0.0
         self.payoff=0
         self.jumper=0
+        self.durationlimit=20
+        self.stop=10
         
-
     def backtest(self):
 
         print('backtest')
@@ -51,7 +54,7 @@ class ReversionSetup:
                 print('Open is {} at {} bbl is {} res of first day is {}'.format(o, self.bars.loc[i].date, bbl, res))
 
                 j=1
-                while( res < 0 and j < 20 and i+j < len(self.bars.index)):
+                while( res < 0 and res > -self.stop  and j < self.durationlimit and i+j < len(self.bars.index)):
                     c=self.bars.loc[i+j].close
                     h=self.bars.loc[i+j].high
                     l=self.bars.loc[i+j].low
@@ -67,6 +70,8 @@ class ReversionSetup:
                     self.losses+=1
                     self.lossesr.append(-res)
                     self.res.append(res)
+
+                self.duration.append(j)
                 print('Long on {} at {} res is {} after {} days'.format(self.stk,self.bars.loc[i].date, res,j))
                
             if(self.shortConditions(po,pc,o,bbh)):
@@ -76,7 +81,7 @@ class ReversionSetup:
                 print('Open is {} at {} bbh is {} res of first day is {}'.format(o, self.bars.loc[i].date, bbh, res))
                 
                 j=1
-                while(res < 0 and j < 20 and i+j < len(self.bars.index)):
+                while( res < 0 and res > -self.stop and j < self.durationlimit and i+j < len(self.bars.index) ):
 
                     c=self.bars.loc[i+j].close
                     l=self.bars.loc[i+j].low
@@ -94,8 +99,8 @@ class ReversionSetup:
                     self.lossesr.append(-res)
                     self.res.append(res)
 
+                self.duration.append(j)
                 print('Short on {} at {} res is {} after {} days'.format(self.stk, self.bars.loc[i].date, res,j))
-
 
             if(i + self.jumper + 1 < len(self.bars)):
                 p=(self.bars.loc[ i + self.jumper])
@@ -104,11 +109,12 @@ class ReversionSetup:
                 i+=1
                 break
             
-        self.winrate=(self.wins/self.taken)
+        self.winrate=(self.wins/self.taken) 
         self.averageres=statistics.mean(self.res)
         self.avgw=statistics.mean(self.winsr)
         self.avgl=statistics.mean(self.lossesr)
         self.payoff=self.avgw/self.avgl
+        self.avgduration=statistics.mean(self.duration)
 
     def longConditions(self, po, pc, o, bbl) -> bool:
         longCondition = po > bbl and pc < bbl and o < bbl
@@ -119,17 +125,15 @@ class ReversionSetup:
         return shortCondition
 
     def longplay(self,o,c,h,l):
-        if h >= o * 1.05:
-            return 5
-        if l <= o* 0.9:
+        if l <= o * 0.9:
             return -10
+        if h >= o * 1.1:
+            return 10
         return (c-o)/o*100
 
     def shortplay(self,o,c,l,h):
-        if l <= o * 0.95:
-            return 5
-        if h >= o* 1.1:
+        if h >= o * 1.1:
             return -10
-        return (o-c)/o*100
-
-   
+        if l <= o * 0.9:
+            return 10
+        return (o-c)/o*100 
