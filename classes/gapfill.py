@@ -1,6 +1,5 @@
 import pandas as pd
 import statistics
-from classes.indicators import Indicators 
 
 class Gapsetup:
 

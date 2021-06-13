@@ -22,22 +22,24 @@ global_avgduration=[]
 def main():
 
     def reversion():
+        start_date=sys.argv[2]
         global global_res, global_lossesr, global_winsr, global_avgduration
-        for stk in sys.argv[2:]:
+        for stk in sys.argv[3:]:
             print('starting reversion setup backtest')
             bars=pd.read_csv('data/daily/'+ stk +'.csv')
-            r=ReversionSetup(bars, stk)
+            r=ReversionSetup(bars, stk, start_date)
             r.backtest()
             # print("{} trades taken on total, {} wins, {} losses {:.2f}% winrate".format(r.taken, r.wins, r.losses, r.winrate))
             # print("average result is {:.2f} payoff is {:.2f}".format(r.averageres, r.payoff))
             # df=pd.DataFrame(r.res)
             # plt.hist(df, bins=[-3,-2.75,-2.5,-2.25,-2,-1.75,-1.5,-1.25,-1,-0.75,-0.5,-0.25,0.25,0.5,0.75,1,1.25,1.5,1.75,2,2.25,2.5,2.75,3])
             # plt.show()
-            global_res = global_res + r.res
-            global_winsr = global_winsr + r.winsr
-            global_lossesr = global_lossesr + r.lossesr
-            global_avgduration = global_avgduration + r.duration
-        print('Average duration is {}'.format(statistics.mean(global_avgduration)))
+            if (r.taken > 0):
+                global_res = global_res + r.res
+                global_winsr = global_winsr + r.winsr
+                global_lossesr = global_lossesr + r.lossesr
+                global_avgduration = global_avgduration + r.duration
+                print('Global average duration is {}'.format(statistics.mean(global_avgduration)))
 
     def gap():
         global global_res, global_lossesr, global_winsr
@@ -74,7 +76,7 @@ def main():
 
     # print(global_res) 
     print("{} trades taken on total, {} wins, {} losses {:.2f}% winrate".format(global_taken ,global_wins, global_losses, global_winrate))
-    print("Average result is {:.2f} payoff is {:.2f}".format(global_averageres, global_payoff))
+    print("Global average result is {:.2f} payoff is {:.2f}".format(global_averageres, global_payoff))
         
 if __name__ == '__main__':
     main()

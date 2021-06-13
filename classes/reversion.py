@@ -1,9 +1,10 @@
 from ta.volatility import BollingerBands
 import statistics
+import pandas as pd
 
 class ReversionSetup:
 
-    def __init__(self, bars, stk):
+    def __init__(self, bars, stk, start_date='20010101'):
 
         self.bars=bars
         self.stk=stk
@@ -23,17 +24,25 @@ class ReversionSetup:
         self.jumper=0
         self.durationlimit=20
         self.stop=10
+        self.start_date=start_date
         
     def backtest(self):
 
         print('backtest')
+        
         # Initialize Bollinger Bands Indicator
         bb = BollingerBands(close=self.bars["close"], window=10, window_dev=1.5) 
         self.bars['bbh'] = bb.bollinger_hband()
         self.bars['bbl'] = bb.bollinger_lband()
 
+        self.start_date = pd.to_datetime( self.start_date, format='%Y%m%d') 
+        self.bars['date'] = pd.to_datetime( self.bars['date'], format='%Y%m%d') 
         p=(self.bars.loc[10])
         i=11
+        while(i < len(self.bars) and self.bars.loc[i].date < self.start_date):
+            i=i+1
+        
+       
         while (i < len(self.bars)):
             
             o=self.bars.loc[i].open
@@ -45,7 +54,6 @@ class ReversionSetup:
             bbl=self.bars.loc[i-1].bbl
             bbh=self.bars.loc[i-1].bbh
             self.jumper=0
-            
 
             if(self.longConditions(po,pc,o,bbl)):
 
@@ -108,13 +116,16 @@ class ReversionSetup:
             else:
                 i+=1
                 break
-            
-        self.winrate=(self.wins/self.taken) 
-        self.averageres=statistics.mean(self.res)
-        self.avgw=statistics.mean(self.winsr)
-        self.avgl=statistics.mean(self.lossesr)
-        self.payoff=self.avgw/self.avgl
-        self.avgduration=statistics.mean(self.duration)
+
+        if(self.taken > 0):
+            if (self.wins > 0 ):
+                self.winrate=(self.wins/self.taken)
+            if(self.losses > 0 and self.wins > 0):
+                self.avgl=statistics.mean(self.lossesr)
+                self.avgw=statistics.mean(self.winsr)
+                self.payoff=self.avgw/self.avgl
+            self.averageres=statistics.mean(self.res)
+            self.avgduration=statistics.mean(self.duration)
 
     def longConditions(self, po, pc, o, bbl) -> bool:
         longCondition = po > bbl and pc < bbl and o < bbl
