@@ -73,7 +73,7 @@ def main():
             global_lossesr = global_lossesr + b.lossesr
 
 
-    if(sys.argv[1] == 'gap'):
+    if(sys.argv[1] == 'gap'): 
         gap()
     if(sys.argv[1] == 'reversion'):
         reversion()
