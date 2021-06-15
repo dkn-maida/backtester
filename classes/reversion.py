@@ -41,8 +41,7 @@ class ReversionSetup:
         i=11
         while(i < len(self.bars) and self.bars.loc[i].date < self.start_date):
             i=i+1
-        
-       
+
         while (i < len(self.bars)):
             
             o=self.bars.loc[i].open
@@ -136,15 +135,15 @@ class ReversionSetup:
         return shortCondition
 
     def longplay(self,o,c,h,l):
-        if l <= o * 0.9:
-            return -10
-        if h >= o * 1.1:
-            return 10
+        if l <= o * 0.97:
+            return -3
+        if h >= o * 1.05:
+            return 5
         return (c-o)/o*100
 
     def shortplay(self,o,c,l,h):
-        if h >= o * 1.1:
-            return -10
-        if l <= o * 0.9:
-            return 10
+        if h >= o * 1.03:
+            return -3
+        if l <= o * 0.95: 
+            return 5
         return (o-c)/o*100 

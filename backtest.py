@@ -3,6 +3,7 @@ import sys
 import pandas as pd
 from classes.gapfill import Gapsetup 
 from classes.reversion import ReversionSetup
+from classes.breakaway import BreakAwaySetup
 
 global_res=[]
 global_taken=0
@@ -56,11 +57,28 @@ def main():
             global_winsr = global_winsr + g.winsr
             global_lossesr = global_lossesr + g.lossesr
 
+    def breakaway():
+        global global_res, global_lossesr, global_winsr
+        for stk in sys.argv[2:]:
+            bars=pd.read_csv('data/hourly/'+ stk +'.csv')
+            b=BreakAwaySetup(bars, stk)
+            b.backtest()
+            # print("{} trades taken on total, {} wins, {} losses {:.2f}% winrate".format(g.taken, g.wins, g.losses, g.winrate))
+            # print("average result is {:.2f} payoff is {:.2f}".format(g.averageres, g.payoff))
+            # df=pd.DataFrame(g.res)
+            # plt.hist(df, bins=[-3,-2.75,-2.5,-2.25,-2,-1.75,-1.5,-1.25,-1,-0.75,-0.5,-0.25,0.25,0.5,0.75,1,1.25,1.5,1.75,2,2.25,2.5,2.75,3])
+            # plt.show()
+            global_res = global_res + b.res
+            global_winsr = global_winsr + b.winsr
+            global_lossesr = global_lossesr + b.lossesr
+
 
     if(sys.argv[1] == 'gap'):
         gap()
     if(sys.argv[1] == 'reversion'):
         reversion()
+    if(sys.argv[1] == 'breakaway'):
+        breakaway()
     
 
     global_wins=len(global_winsr)
