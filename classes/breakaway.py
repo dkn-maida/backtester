@@ -33,21 +33,51 @@ class BreakAwaySetup:
         self.bars['sma100'] = sma100.sma_indicator()
         self.bars['sma200'] = sma200.sma_indicator()
 
-        i=210
+        i=214
+        res=0
         while(i < len(self.bars)):
 
             o=self.bars.loc[i].open
             c=self.bars.loc[i].close
             pc=self.bars.loc[i-1].close
+            sma50=self.bars.loc[i].sma50
+            sma100=self.bars.loc[i].sma100
+            sma200=self.bars.loc[i].sma200
 
-            if(self.longConditions(o, pc)):
+            print("On {} sma50 {}, 100 {} and 200 {}".format(self.bars.loc[i].date, sma50, sma100, sma200))
+            print("Open is {} previous close is {}".format(o,pc))
+
+            if(self.longConditions(o, pc, sma50, sma100, sma200)):
+                print("Long trade taken on {}".format(self.bars.loc[i].date))
                 j=0
                 res=0
-                while(i+j < len(self.bars) and j < 7 and res <= 0):
+                self.taken += 1
+                while(i+j < len(self.bars) and j < 7 and res < 0):
                     res=self.longplay(self, o, c)
                     j=j+1
                     c=self.bars.loc[i+j].close
+
+            if(self.shortConditions(o, pc, sma50, sma100, sma200)):
+                print("Short trade taken on {}".format(self.bars.loc[i].date))
+                j=0
+                res=0
+                self.taken += 1
+                while(i+j < len(self.bars) and j < 7 and res < 0):
+                    res=self.shortplay(self, o, c)
+                    j=j+1
+                    c=self.bars.loc[i+j].close
+                print('res is {}'.format(res))
+            
+            if res > 0:
+                self.wins+=1
+                self.winsr.append(res)
+                self.res.append(res)
+            if res < 0:
+                self.losses+=1
+                self.lossesr.append(-res)
+                self.res.append(res)
             i=i+7
+
 
 
 

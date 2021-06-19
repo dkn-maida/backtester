@@ -83,28 +83,22 @@ class Gapsetup:
             print('open is {} target is {} gapsize is {}'.format(first.open, target, gapsize))
         
             if(first.open > target):
-                # target=min(target, first.open * 0.995)
-                stop=first.open * 1.015
+             
+            
                 print('This is a gap Up')
-                while(i < 18 and bars.loc[i].low > target):
+                while(i < 70 and bars.loc[i].low > target):
                     i+=1
-                if( bars.loc[i].high >= stop):
-                    res=first.open-stop
-                elif( bars.loc[i].low <= target):
+                if( bars.loc[i].low <= target):
                     res=first.open-target
                 else:
                     res=first.open - bars.loc[i].close
 
             elif(first.open < target):
-                # target=min(target, first.open * 1.005)
-                stop=first.open * 0.985
                 print('This is a gap Down')
-                while(i < 18 and bars.loc[i] < target):
+                while(i < 70 and bars.loc[i] < target):
                     i+=1
-                if( bars.loc[i].low <= stop):
-                    res=stop-first.open
-                elif( bars.loc[i].high >= target ):
-                    res=target - first.open
+                if( bars.loc[i].high >= target ):
+                    res=target - first.open 
                 else:
                     res=bars.loc[i].close - first.open 
 

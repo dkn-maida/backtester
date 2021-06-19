@@ -60,7 +60,7 @@ def main():
     def breakaway():
         global global_res, global_lossesr, global_winsr
         for stk in sys.argv[2:]:
-            bars=pd.read_csv('data/hourly/'+ stk +'.csv')
+            bars=pd.read_csv('data/hourly/'+ stk +'/'+ stk + '.csv')
             b=BreakAwaySetup(bars, stk)
             b.backtest()
             # print("{} trades taken on total, {} wins, {} losses {:.2f}% winrate".format(g.taken, g.wins, g.losses, g.winrate))
